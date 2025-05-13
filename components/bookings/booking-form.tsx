@@ -65,6 +65,7 @@ export function BookingForm({ bookingId }: BookingFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [agents, setAgents] = useState<Agent[]>([])
   const [isLoadingData, setIsLoadingData] = useState(bookingId ? true : false)
+  const [selectedDate, setSelectedDate] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -271,58 +272,46 @@ export function BookingForm({ bookingId }: BookingFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="departureDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Departure Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                          >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="returnDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Return Date (Optional)</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                          >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+   <FormField
+  control={form.control}
+  name="departureDate"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>Departure Date</FormLabel>
+      <FormControl>
+        <input
+          type="date"
+          id="departureDate"
+          className="w-full border px-3 py-2 rounded-md"
+          value={field.value ? format(new Date(field.value), "yyyy-MM-dd") : ""}
+          onChange={(e) => field.onChange(new Date(e.target.value))}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="returnDate"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>Return Date (Optional)</FormLabel>
+      <FormControl>
+        <input
+          type="date"
+          id="returnDate"
+          className="w-full border px-3 py-2 rounded-md text-sm"
+          value={field.value ? format(new Date(field.value), "yyyy-MM-dd") : ""}
+          onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
               <FormField
                 control={form.control}
                 name="ticketAmount"
