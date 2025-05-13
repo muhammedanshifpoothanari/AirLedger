@@ -30,7 +30,8 @@ console.log('kljnbhgvcf',session);
 
     // Generate a unique booking number
     const bookingCount = await Booking.countDocuments()
-    const bookingNumber = `BK${new Date().getFullYear()}${String(bookingCount + 1).padStart(4, "0")}`
+    
+    const bookingNumber = `BK${new Date().getFullYear()}${bookingCount + 1}`
 
     // Calculate profit amount
     const profitAmount = data.commissionAmount || data.ticketAmount * 0.1
@@ -49,6 +50,8 @@ console.log('kljnbhgvcf',session);
       notes: data.notes,
       user: session.user.id,
     })
+    console.log('bookingrgvvrgrvgclear',booking);
+    
 
     await booking.save()
 

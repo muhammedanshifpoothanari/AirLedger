@@ -22,6 +22,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
+    console.log('hi');
+    
     const session = await getServerSession(authOptions)
 
     if (!session) {

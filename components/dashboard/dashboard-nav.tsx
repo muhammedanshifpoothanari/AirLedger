@@ -60,7 +60,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
       <SidebarHeader className="flex items-center justify-between px-4 py-3">
         <Link href="/dashboard" className="flex items-center space-x-2">
           <PlaneTakeoff className="h-6 w-6" />
-          <span className="font-bold">AirBooker</span>
+          <span className="font-bold">ShareefLedger</span>
         </Link>
         <Button asChild size="sm" className="h-8">
           <Link href="/dashboard/bookings/new">
