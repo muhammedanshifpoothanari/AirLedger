@@ -19,7 +19,6 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-console.log('kljnbhgvcf',session);
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -28,16 +27,31 @@ console.log('kljnbhgvcf',session);
     const data = await request.json()
     await connectToDatabase()
 
-    // Generate a unique booking number
-    const bookingCount = await Booking.countDocuments()
+    // Generate a unique booking number using timestamp and random component
+    const timestamp = Date.now().toString().slice(-6) // Last 6 digits of timestamp
     
-    const bookingNumber = `BK${new Date().getFullYear()}${bookingCount + 1}`
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0") // 3-digit random number
+    const year = new Date().getFullYear()
+    const bookingNumber = `BK${year}${timestamp}${random}`
+
+    // Verify the booking number is unique (just to be extra safe)
+    const existingBooking = await Booking.findOne({ bookingNumber })
+    let bookingNumberTemp = bookingNumber
+           if (existingBooking) {
+             // In the extremely unlikely case of a collision, add another random component
+             const extraRandom = Math.floor(Math.random() * 100)
+               .toString()
+               .padStart(2, "0")
+             bookingNumberTemp = `${bookingNumber}${extraRandom}`
+           }
 
     // Calculate profit amount
     const profitAmount = data.commissionAmount || data.ticketAmount * 0.1
 
     const booking = new Booking({
-      bookingNumber,
+      bookingNumber:bookingNumberTemp,
       customer: data.customer,
       destination: data.destination,
       departureDate: data.departureDate,
@@ -50,8 +64,6 @@ console.log('kljnbhgvcf',session);
       notes: data.notes,
       user: session.user.id,
     })
-    console.log('bookingrgvvrgrvgclear',booking);
-    
 
     await booking.save()
 
