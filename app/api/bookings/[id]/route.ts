@@ -40,6 +40,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       params.id,
       {
         customer: data.customer,
+        departurePlace:data.departurePlace,
         destination: data.destination,
         departureDate: data.departureDate,
         returnDate: data.returnDate,

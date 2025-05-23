@@ -38,6 +38,8 @@ export async function POST(request: Request) {
 
     // Verify the booking number is unique (just to be extra safe)
     const existingBooking = await Booking.findOne({ bookingNumber })
+    console.log(session);
+
     let bookingNumberTemp = bookingNumber
            if (existingBooking) {
              // In the extremely unlikely case of a collision, add another random component
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
     const booking = new Booking({
       bookingNumber:bookingNumberTemp,
       customer: data.customer,
+      departurePlace:data.departurePlace,
       destination: data.destination,
       departureDate: data.departureDate,
       returnDate: data.returnDate,
