@@ -46,6 +46,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         returnDate: data.returnDate,
         ticketAmount: data.ticketAmount,
         commissionAmount: data.commissionAmount,
+        paymentStatus:data.paymentStatus,
         profitAmount,
         agent: data.agent,
         status: data.status,

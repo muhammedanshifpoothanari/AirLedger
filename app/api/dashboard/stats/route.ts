@@ -61,12 +61,12 @@ export async function GET() {
     const stats = [
       {
         title: "Total Sales",
-        value: `$${currentMonthSales.toFixed(2)}`,
+        value: `ر.س${currentMonthSales.toFixed(2)}`,
         change: `${salesChange.toFixed(1)}%`,
       },
       {
         title: "Total Profit",
-        value: `$${currentMonthProfit.toFixed(2)}`,
+        value: `ر.س${currentMonthProfit.toFixed(2)}`,
         change: `${profitChange.toFixed(1)}%`,
       },
       {

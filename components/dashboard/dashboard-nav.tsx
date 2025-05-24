@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Home, PlaneTakeoff, Plus, Settings, Users } from "lucide-react"
+import { BarChart3, Home, PlaneTakeoff, Plus, Settings, Users, CreditCard } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { UserAccountNav } from "@/components/auth/user-account-nav"
@@ -53,6 +54,11 @@ export function DashboardNav({ user }: DashboardNavProps) {
       href: "/dashboard/settings",
       icon: Settings,
     },
+    {
+      title: "Credit",
+      href: "/dashboard/credit",
+      icon: CreditCard,
+    },
   ]
 
   return (
@@ -60,7 +66,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
       <SidebarHeader className="flex items-center justify-between px-4 py-3">
         <Link href="/dashboard" className="flex items-center space-x-2">
           <PlaneTakeoff className="h-6 w-6" />
-          <span className="font-bold">ShareefLedger</span>
+          <span className="font-bold">AirBooker</span>
         </Link>
         <Button asChild size="sm" className="h-8">
           <Link href="/dashboard/bookings/new">
@@ -68,11 +74,14 @@ export function DashboardNav({ user }: DashboardNavProps) {
             New Booking
           </Link>
         </Button>
+      
       </SidebarHeader>
       <SidebarGroup>
-        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+
+        <SidebarGroupLabel>Navigation  </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
+          <SidebarTrigger />
             {routes.map((route) => (
               <SidebarMenuItem key={route.href}>
                 <SidebarMenuButton asChild isActive={pathname === route.href}>
@@ -83,6 +92,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+           
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

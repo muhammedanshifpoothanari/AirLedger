@@ -49,8 +49,8 @@ export async function GET(request: Request) {
       {
         $group: {
           _id: { month: { $month: "$createdAt" } },
-          sales: { $sum: "$ticketAmount" },
-          profit: { $sum: "$profitAmount" },
+          sales: { $sum: "ر.سticketAmount" },
+          profit: { $sum: "ر.سprofitAmount" },
           bookings: { $sum: 1 },
         },
       },

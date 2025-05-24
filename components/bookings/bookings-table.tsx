@@ -85,6 +85,11 @@ export function BookingsTable() {
   const [invoiceOpen, setInvoiceOpen] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [creditInfo, setCreditInfo] = useState<{
+    totalAmount: number
+    usedAmount: number
+    availableCredit: number
+  } | null>(null)
 
   // Check if we're on a mobile device
   useEffect(() => {
@@ -105,7 +110,8 @@ export function BookingsTable() {
   useEffect(() => {
     fetchBookings()
     fetchAgents()
-  }, [sortDirection]) // Add sortDirection as a dependency
+    fetchCreditInfo()
+  }, [sortDirection])
 
   const fetchBookings = async () => {
     setIsLoading(true)
@@ -166,6 +172,24 @@ export function BookingsTable() {
     }
   }
 
+  const fetchCreditInfo = async () => {
+    try {
+      const response = await fetch("/api/credit")
+      if (response.ok) {
+        const credit = await response.json()
+        if (credit) {
+          setCreditInfo({
+            totalAmount: credit.totalAmount,
+            usedAmount: credit.usedAmount,
+            availableCredit: credit.totalAmount - credit.usedAmount,
+          })
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching credit info:", error)
+    }
+  }
+
   const deleteBooking = async (id: string) => {
     try {
       const response = await fetch(`/api/bookings/${id}`, {
@@ -200,10 +224,11 @@ export function BookingsTable() {
   // Format currency with accounting style (negative numbers in parentheses)
   const formatCurrency = (amount: number) => {
     if (amount < 0) {
-      return `($${Math.abs(amount).toFixed(2)})`
+      return `(ر.س${Math.abs(amount).toFixed(2)})`;
     }
-    return `$${amount.toFixed(2)}`
-  }
+    return `ر.س${amount.toFixed(2)}`;
+  };
+  
 
   // Calculate running balance for each row
   const calculateRunningBalance = (index: number) => {
@@ -313,7 +338,7 @@ export function BookingsTable() {
       accessorKey: "paymentStatus",
       header: "Payment",
       cell: ({ row }) => {
-        const paymentStatus = row.original.paymentStatus || "Unpaid"
+        const paymentStatus = row.original.paymentStatus || "Partial"
         return (
           <Badge
             variant={paymentStatus === "Paid" ? "default" : paymentStatus === "Partial" ? "outline" : "destructive"}
@@ -450,6 +475,12 @@ export function BookingsTable() {
               <p className="text-xs text-muted-foreground">Balance</p>
               <p className="font-mono font-medium">{formatCurrency(calculateRunningBalance(index))}</p>
             </div>
+            {creditInfo && (
+              <div>
+                <p className="text-xs text-muted-foreground">Available Credit</p>
+                <p className="font-mono text-green-600">{formatCurrency(creditInfo.availableCredit)}</p>
+              </div>
+            )}
             <div>
               <p className="text-xs text-muted-foreground">Agent</p>
               <p>{typeof booking.agent === "object" ? booking.agent.name : "Unknown"}</p>
@@ -478,8 +509,20 @@ export function BookingsTable() {
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             <span>Booking Ledger</span>
-            <div className="text-sm font-normal">
-              Total Balance: <span className="font-mono font-bold">{formatCurrency(runningBalance)}</span>
+            <div className="text-sm font-normal space-y-1">
+              <div>
+                Total Balance: <span className="font-mono font-bold">{formatCurrency(runningBalance)}</span>
+              </div>
+              {creditInfo && (
+                <div className="text-xs">
+                  Available Credit:{" "}
+                  <span className="font-mono font-semibold text-green-600">
+                    {formatCurrency(creditInfo.availableCredit)}
+                  </span>
+                  {" / "}
+                  <span className="font-mono text-muted-foreground">{formatCurrency(creditInfo.totalAmount)}</span>
+                </div>
+              )}
             </div>
           </CardTitle>
         </CardHeader>

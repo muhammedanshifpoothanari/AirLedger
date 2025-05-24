@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
+import { AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
@@ -74,6 +76,7 @@ export function BookingForm({ bookingId }: BookingFormProps) {
   const [agents, setAgents] = useState<Agent[]>([])
   const [isLoadingData, setIsLoadingData] = useState(bookingId ? true : false)
   const [activeTab, setActiveTab] = useState("details")
+  const [creditError, setCreditError] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -164,10 +167,50 @@ export function BookingForm({ bookingId }: BookingFormProps) {
     }
   }
 
+  const checkCreditAvailability = async (amount: number): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/credit/check", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to check credit availability")
+      }
+
+      const data = await response.json()
+
+      if (!data.available) {
+        setCreditError(data.message)
+        return false
+      }
+
+      setCreditError(null)
+      return true
+    } catch (error) {
+      console.error("Error checking credit:", error)
+      setCreditError("Failed to check credit availability. Please try again.")
+      return false
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
     try {
+      // Check if there's enough credit available
+      const commissionAmount = Number.parseFloat(values.commissionAmount)
+      const hasSufficientCredit = await checkCreditAvailability(commissionAmount)
+
+      if (!hasSufficientCredit) {
+        setIsLoading(false)
+        return
+      }
+
+      // Rest of your existing code...
       const bookingData = {
         bookingNumber: values.bookingNumber,
         customer: {
@@ -180,7 +223,7 @@ export function BookingForm({ bookingId }: BookingFormProps) {
         departureDate: values.departureDate.toISOString(),
         returnDate: values.returnDate ? values.returnDate.toISOString() : null,
         ticketAmount: Number.parseFloat(values.ticketAmount),
-        commissionAmount: Number.parseFloat(values.commissionAmount),
+        commissionAmount: commissionAmount,
         agent: values.agent,
         status: values.status,
         paymentStatus: values.paymentStatus,
@@ -221,6 +264,10 @@ export function BookingForm({ bookingId }: BookingFormProps) {
     }
   }
 
+
+
+
+  
   if (isLoadingData) {
     return (
       <Card>
@@ -534,6 +581,13 @@ export function BookingForm({ bookingId }: BookingFormProps) {
                   )}
                 />
               </TabsContent>
+              {creditError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Credit Error</AlertTitle>
+                  <AlertDescription>{creditError}</AlertDescription>
+                </Alert>
+              )}
               <div className="flex justify-end space-x-4 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => router.push("/dashboard/bookings")}>
                   Cancel

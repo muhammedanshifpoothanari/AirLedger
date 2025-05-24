@@ -21,8 +21,8 @@ export async function GET() {
       customer: booking.customer.name,
       destination: booking.destination,
       date: new Date(booking.departureDate).toISOString().split("T")[0],
-      amount: `$${booking.ticketAmount.toFixed(2)}`,
-      profit: `$${booking.profitAmount.toFixed(2)}`,
+      amount: `ر.س${booking.ticketAmount.toFixed(2)}`,
+      profit: `ر.س${booking.profitAmount.toFixed(2)}`,
       agent: booking.agent.name,
       status: booking.status,
     }))
@@ -33,3 +33,6 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to fetch recent bookings" }, { status: 500 })
   }
 }
+
+
+

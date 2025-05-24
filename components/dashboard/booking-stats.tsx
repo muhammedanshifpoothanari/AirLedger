@@ -10,17 +10,17 @@ export function BookingStats() {
       title: "Total Sales",
       value: "$0",
       change: "0%",
-      icon: DollarSign,
+      icon: RiyalSign,
     },
     {
       title: "Total Profit",
-      value: "$0",
+      value: `${RiyalSign}0`,
       change: "0%",
       icon: TrendingUp,
     },
     {
       title: "Bookings",
-      value: "0",
+      value: `${RiyalSign}0`,
       change: "0%",
       icon: PlaneTakeoff,
     },
@@ -83,3 +83,19 @@ export function BookingStats() {
     </>
   )
 }
+
+const RiyalSign = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-riyal-sign"
+  >
+    <text x="4" y="18" fontSize="16">ر.س</text>
+  </svg>
+);

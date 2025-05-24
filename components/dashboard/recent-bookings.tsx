@@ -30,6 +30,8 @@ export function RecentBookings() {
     fetchRecentBookings()
   }, [])
 
+
+  
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
