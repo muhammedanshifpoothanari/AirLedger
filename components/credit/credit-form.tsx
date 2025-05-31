@@ -24,11 +24,28 @@ const formSchema = z.object({
     }),
   notes: z.string().optional(),
 })
+const creditSchema = z.object({
+  usedAmount: z
+    .string()
+    .min(1, {
+      message: "Total credit amount is required.",
+    })
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Credit amount must be a positive number.",
+    }),
+  notes: z.string().optional(),
+})
 
 export function CreditForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [creditInfo, setCreditInfo] = useState<any>(null)
   const [isLoadingData, setIsLoadingData] = useState(true)
+  const [editTotalAmount, setEditTotalAmount] = useState(false)
+  const [editUsedAmount, setEditUsedAmount] = useState(false)
+  
+  const [totalAmountInput, setTotalAmountInput] = useState("")
+  const [usedAmountInput, setUsedAmountInput] = useState("")
+  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,6 +58,8 @@ export function CreditForm() {
   useEffect(() => {
     fetchCreditInfo()
   }, [])
+
+  
 
   const fetchCreditInfo = async () => {
     setIsLoadingData(true)
@@ -110,6 +129,64 @@ export function CreditForm() {
     }
   }
 
+
+  async function onUpdateTotalAmount() {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/credit", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalAmount: Number(totalAmountInput),
+          notes: "Updated total credit",
+        }),
+      })
+  
+      if (!response.ok) throw new Error("Failed to update")
+  
+      const updated = await response.json()
+      setCreditInfo(updated)
+      setEditTotalAmount(false)
+      toast({ title: "Success", description: "Total credit updated." })
+    } catch (err) {
+      console.error(err)
+      toast({ title: "Error", description: "Something went wrong.", variant: "destructive" })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+
+
+
+  async function onUpdateUsedAmount() {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/credit", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          usedAmount: Number(usedAmountInput),
+          notes: "Updated used credit",
+        }),
+      })
+  
+      if (!response.ok) throw new Error("Failed to update")
+  
+      const updated = await response.json()
+      setCreditInfo(updated)
+      setEditUsedAmount(false)
+      toast({ title: "Success", description: "Used credit updated." })
+    } catch (err) {
+      console.error(err)
+      toast({ title: "Error", description: "Something went wrong.", variant: "destructive" })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+
+
   if (isLoadingData) {
     return (
       <Card>
@@ -130,18 +207,48 @@ export function CreditForm() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Credit</CardTitle>
+              
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Credit <span className="p-3 cursor-pointer" onClick={() => {setEditTotalAmount(true)}}>✍️</span></CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${creditInfo?.totalAmount.toFixed(2)}</div>
+            {editTotalAmount ? (
+  <>
+    <input
+      type="number"
+      value={totalAmountInput}
+      onChange={(e) => setTotalAmountInput(e.target.value)}
+      className="border p-2"
+    />
+    <span onClick={onUpdateTotalAmount} className="p-3 cursor-pointer">✅</span>
+    <span onClick={() => setEditTotalAmount(false)} className="cursor-pointer">❌</span>
+  </>
+) : (
+  <div className="text-2xl font-bold">${creditInfo?.totalAmount.toFixed(2)}</div>
+)}
+
+               
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Used Credit</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Used Credit <span className="p-3 cursor-pointer" onClick={() => {setEditUsedAmount(true)}}>✍️</span></CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${creditInfo?.usedAmount.toFixed(2)}</div>
+            {editUsedAmount ? (
+  <>
+    <input
+      type="number"
+      value={usedAmountInput}
+      onChange={(e) => setUsedAmountInput(e.target.value)}
+      className="border p-2"
+    />
+    <span onClick={onUpdateUsedAmount} className="p-3 cursor-pointer">✅</span>
+    <span onClick={() => setEditUsedAmount(false)} className="cursor-pointer">❌</span>
+  </>
+) : (
+  <div className="text-2xl font-bold">${creditInfo?.usedAmount.toFixed(2)}</div>
+)}
+
             </CardContent>
           </Card>
           <Card>
